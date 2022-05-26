@@ -1,12 +1,23 @@
+const path = require('path');
 const express = require("express");
-const routes = require("./routes"); //connects to our api package that collects to our user package that sums up the user routes
-const sequelize = require("./config/connection"); //connects to our server
+const exphbs = require('express-handlebars');//template engine for dynamic html
+const routes = require('./controllers/');//connects to our api package that collects to our user package that sums up the user routes
 
+
+ 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const sequelize = require("./config/connection"); //connects to our server
+
+const hbs = exphbs.create({});//for express handlebars
+app.engine('handlebars', hbs.engine);
+app.set('view engine', 'handlebars');
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));//takes content of the public folder and serves them as static assets.
 
 // turn on routes
 app.use(routes);
