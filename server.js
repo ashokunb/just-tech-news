@@ -2,13 +2,27 @@ const path = require('path');
 const express = require("express");
 const exphbs = require('express-handlebars');//template engine for dynamic html
 const routes = require('./controllers/');//connects to our api package that collects to our user package that sums up the user routes
-
+const session = require('express-session');// express session to allow us to save session into database
 
  
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 const sequelize = require("./config/connection"); //connects to our server
+// use express sessions and sequallize store
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+const sess = {// use express sessions and sequallize store
+  secret: 'Super secret secret',
+  cookie: {},
+  resave: false,
+  saveUninitialized: true,
+  store: new SequelizeStore({
+    db: sequelize
+  })
+};
+
+app.use(session(sess));
 
 const hbs = exphbs.create({});//for express handlebars
 app.engine('handlebars', hbs.engine);

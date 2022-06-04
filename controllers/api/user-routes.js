@@ -76,7 +76,16 @@ router.post("/", (req, res) => {
     .catch((err) => {
       console.log(err);
       res.status(500).json(err);
-    });
+    })
+    .then(dbUserData => {//caputre user session for cookies.
+      req.session.save(() => {
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = true;
+  
+        res.json(dbUserData);
+      });
+    })
 });
 
 router.post('/login', (req, res) => {
@@ -90,16 +99,34 @@ router.post('/login', (req, res) => {
       res.status(400).json({ message: 'No user with that email address!' });
       return;
     }
-const validPassword = dbUserData.checkPassword(req.body.password);
+
+    const validPassword = dbUserData.checkPassword(req.body.password);
 
     if (!validPassword) {
       res.status(400).json({ message: 'Incorrect password!' });
       return;
     }
 
-    res.json({ user: dbUserData, message: 'You are now logged in!' });
-  });  
-})
+    req.session.save(() => {
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
+  
+      res.json({ user: dbUserData, message: 'You are now logged in!' });
+    });
+  });
+});
+
+router.post('/logout', (req, res) => {//allows user to logout of session
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
+});
 
 // PUT /api/users/1
 router.put("/:id", (req, res) => {
