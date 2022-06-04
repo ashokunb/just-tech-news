@@ -1,7 +1,6 @@
 const path = require('path');
 const express = require("express");
 const exphbs = require('express-handlebars');//template engine for dynamic html
-const routes = require('./controllers/');//connects to our api package that collects to our user package that sums up the user routes
 const session = require('express-session');// express session to allow us to save session into database
 
  
@@ -25,6 +24,7 @@ const sess = {// use express sessions and sequallize store
 app.use(session(sess));
 
 const hbs = exphbs.create({});//for express handlebars
+
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
@@ -33,8 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));//takes content of the public folder and serves them as static assets.
 
-// turn on routes
-app.use(routes);
+app.use(require('./controllers/'));//connects to our api package that collects to our user package that sums up the user routes
 
 // turn on connection to db and server
 //.sync method to establish the connection to the database. The "sync" part means that this is
